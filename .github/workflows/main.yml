@@ -2,7 +2,7 @@ name: Main Kittygram workflow
 on:
   push:
     tags:
-      - v1.*
+      - ver/*
     branches-ignore:
       - '*'
 jobs:
