@@ -32,5 +32,5 @@ services:
       - static:/static_backend/
       - media:/media_files/
     ports:
-      - 9020:80
+      - 9000:80
     restart: always
