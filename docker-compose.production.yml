@@ -21,15 +21,6 @@ services:
     depends_on:
       - db
 
-  frontend:
-    image: mrazzzlop/foodgram_frontend
-    env_file: .env
-    command: cp -r /app/build/. /frontend_static/
-    volumes:
-      - static_volume:/frontend_static
-    depends_on:
-      - backend
-
   nginx:
     image: mrazzzlop/foodgram_nginx
     env_file: .env
