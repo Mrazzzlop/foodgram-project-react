@@ -1,33 +1,37 @@
 import io
-
 from django.conf import settings
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from djoser.views import UserViewSet
-from recipes.models import (FavoriteRecipe, Ingredient, Recipe,
-                            RecipeIngredient, ShoppingCart, Tag)
-
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
-
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
+from rest_framework.permissions import (
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly
+)
 from rest_framework.response import Response
 
 from users.models import CustomUser
+from recipes.models import (
+    FavoriteRecipe, Ingredient,
+    Recipe, RecipeIngredient,
+    ShoppingCart, Tag
+)
 from .filters import IngredientSearchFilter, RecipeFilterBackend
 from .paginators import PageLimitPagination
 from .permissions import isAdminOrAuthorOrReadOnly
-from .serializers import (CustomUserSerializer, FavoriteRecipeSerializer,
-                          IngredientSerializer, RecipeAddSerializer,
-                          RecipeListSerializer, ShoppingCartSerializer,
-                          SubscriptionCreateSerializer,
-                          SubscriptionListSerializer, TagSerializer)
+from .serializers import (
+    CustomUserSerializer, FavoriteRecipeSerializer,
+    IngredientSerializer, RecipeAddSerializer,
+    RecipeListSerializer, ShoppingCartSerializer,
+    SubscriptionCreateSerializer,
+    SubscriptionListSerializer, TagSerializer
+)
 
 
 class CustomUserViewSet(UserViewSet):
