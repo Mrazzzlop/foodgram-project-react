@@ -8,24 +8,29 @@ volumes:
 services:
   db:
     image: postgres:13.10
-    env_file: .env
+    env_file:
+      - ./.env
     volumes:
       - pg_data_production:/var/lib/postgresql/data
 
   backend:
     image: mrazzzlop/foodgram_backend
-    env_file: .env
+    env_file:
+      - ./.env
     volumes:
       - static:/static_backend/
       - media:/media_files/
     depends_on:
       - db
+    restart: always
 
   nginx:
     image: mrazzzlop/foodgram_nginx
-    env_file: .env
+    env_file:
+      - ./.env
     volumes:
       - static:/static_backend/
       - media:/media_files/
     ports:
       - 9000:80
+    restart: always
