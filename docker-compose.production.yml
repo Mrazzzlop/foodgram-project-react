@@ -37,7 +37,7 @@ services:
       - static:/static_backend/
       - media:/media_files/
     ports:
-      - 80:80
+      - 9000:80
     depends_on:
       - backend
       - frontend
