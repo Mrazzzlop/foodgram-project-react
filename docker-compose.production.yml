@@ -29,8 +29,7 @@ services:
     env_file:
       - ./.env
     volumes:
-      - ./default.conf:/etc/nginx/conf.d/
-      - ../docs/openapi-schema.yml:/usr/share/nginx/html/api/docs/
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
       - static:/static_backend/
       - media:/media_files/
     ports:
