@@ -12,7 +12,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', get_random_secret_key())
 
 DEBUG = os.getenv('DEBUG', False)
 
-ALLOWED_HOSTS = ['fooodgraamm.ddns.net']
+ALLOWED_HOSTS = ['fooodgraamm.ddns.net', 'backend']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
