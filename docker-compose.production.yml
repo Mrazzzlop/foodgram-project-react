@@ -4,6 +4,7 @@ volumes:
   pg_data_production:
   static:
   media:
+  redoc:
 services:
   db:
     image: postgres:13.10
@@ -19,6 +20,7 @@ services:
     volumes:
       - static:/static_backend
       - media:/media_files
+      - redoc:/app/api/docs/
     depends_on:
       - db
     restart: always
@@ -28,8 +30,9 @@ services:
     env_file:
       - ./.env
     volumes:
-      - static:/static_backend
-      - media:/media_files
+      - media:/var/html/media/
+      - static:/var/html/static/
+      - redoc:/usr/share/nginx/html/api/docs/
     ports:
       - 8000:80
     restart: always
