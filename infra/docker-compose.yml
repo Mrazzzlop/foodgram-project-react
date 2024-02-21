@@ -4,6 +4,7 @@ volumes:
   pg_data:
   static:
   media:
+  redoc:
 services:
   db:
     image: postgres:16
@@ -24,10 +25,12 @@ services:
     volumes:
       - static:/static_backend
       - media:/media_files
+      - redoc:/app/api/docs/
   nginx:
     build: ../nginx/
     ports:
       - "80:80"
     volumes:
-      - media:/media_files
-      - static:/static_backend
+      - media:/var/html/media/
+      - static:/var/html/static/
+      - redoc:/usr/share/nginx/html/api/docs/
