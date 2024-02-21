@@ -14,7 +14,7 @@ DEBUG = os.getenv('DEBUG', False)
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
-CSRF_TRUSTED_ORIGINS = ['https://foodgram-project.site']
+CSRF_TRUSTED_ORIGINS = ['https://fooodgraamm.ddns.net']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
