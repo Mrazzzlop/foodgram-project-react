@@ -1,7 +1,6 @@
 import contextlib
 
 from rest_framework import serializers
-from django.contrib.auth.hashers import make_password
 from drf_extra_fields.fields import Base64ImageField
 
 from users.models import CustomUser, Subscription
