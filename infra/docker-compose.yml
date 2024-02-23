@@ -3,6 +3,7 @@ version: '3.3'
 volumes:
   pg_data:
   static:
+  front_build:
   media:
   redoc:
 services:
@@ -23,9 +24,14 @@ services:
       - db
     env_file: .env.example
     volumes:
-      - static:/static_backend
-      - media:/media_files
+      - static:/static_backend/
+      - media:/media_files/
       - redoc:/app/api/docs/
+  frontend:
+    build: ../frontend/
+    env_file: .env.example
+    volumes:
+      - front_build:/app/result_build/
   nginx:
     build: ../nginx/
     ports:
@@ -34,3 +40,7 @@ services:
       - media:/var/html/media/
       - static:/var/html/static/
       - redoc:/usr/share/nginx/html/api/docs/
+      - front_build:/usr/share/nginx/html/frontend/
+    depends_on:
+      - backend
+      - frontend
