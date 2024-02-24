@@ -3,7 +3,6 @@ import io
 from django.conf import settings
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
-from django_filters import rest_framework as filters
 from djoser.views import UserViewSet
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfbase import pdfmetrics

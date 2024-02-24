@@ -51,6 +51,7 @@ class TokenSerializer(serializers.Serializer):
         attrs['user'] = user
         return attrs
 
+
 class CustomUserSerializer(serializers.ModelSerializer):
 
     is_subscribed = serializers.SerializerMethodField(read_only=True)
