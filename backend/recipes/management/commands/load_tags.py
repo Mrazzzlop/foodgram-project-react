@@ -1,7 +1,7 @@
 """
 Команда для создание тэгов в БД.
 """
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from recipes.models import Tag
 
