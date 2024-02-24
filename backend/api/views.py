@@ -105,7 +105,7 @@ class AuthToken(ObtainAuthToken):
     """Авторизация пользователя."""
 
     serializer_class = TokenSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
