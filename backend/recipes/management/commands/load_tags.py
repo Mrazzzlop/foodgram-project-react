@@ -1,4 +1,7 @@
-from django.core.management import BaseCommand
+"""
+Команда для создание тэгов в БД.
+"""
+from django.core.management.base import BaseCommand, CommandError
 
 from recipes.models import Tag
 
