@@ -108,7 +108,7 @@ class Recipe(models.Model):
 
     class Meta:
         """Метакласс модели рецепта."""
-        ordering = ['pub_date']
+        ordering = ['-pub_date']
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 

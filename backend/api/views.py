@@ -1,13 +1,7 @@
-import io
-
-from django.conf import settings
-from django.http import FileResponse
+from django.db.models import Sum
+from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfgen import canvas
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (
@@ -25,7 +19,6 @@ from recipes.models import (
     Recipe, RecipeIngredient,
     ShoppingCart, Tag
 )
-
 from .filters import IngredientSearchFilter, RecipeFilterBackend
 from .paginators import PageLimitPagination
 from .permissions import isAdminOrAuthorOrReadOnly
@@ -216,53 +209,23 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
+        methods=('get',),
+        url_path='download_shopping_cart',
         detail=False,
-        methods=['get'],
-        permission_classes=[IsAuthenticated]
+        permission_classes=(IsAuthenticated,)
     )
-    def download_shopping_cart(self, request, pk=None):
-        buffer = io.BytesIO()
-        p = canvas.Canvas(buffer, pagesize=A4)
-        pdfmetrics.registerFont(
-            TTFont(
-                'Arial',
-                str(settings.BASE_DIR / 'data/ArialRegular.ttf')
-            )
-        )
-        p.setFont('Arial', 16)
-        x, y = 100, 750
-
-        ingredients = (
-            RecipeIngredient.objects
-            .filter(recipe__shopping_carts__user=request.user)
-            .values_list(
-                'ingredient__name',
-                'ingredient__measurement_unit',
-                'amount'
-            )
-        )
-        shop_list = {}
-        for ingredient in ingredients:
-            name = ingredient[0]
-            if name not in shop_list:
-                shop_list[name] = {
-                    'measurement_unit': ingredient[1],
-                    'amount': ingredient[2]
-                }
-            shop_list[name]['amount'] += ingredient[2]
-
-        for item, value in shop_list.items():
-            p.drawString(
-                x,
-                y,
-                f'{item} {value["amount"]} {value["measurement_unit"]}'
-            )
-            y -= 24
-        p.showPage()
-        p.save()
-        buffer.seek(0)
-        return FileResponse(
-            buffer,
-            as_attachment=True,
-            filename='shopping_cart.pdf',
-        )
+    def download_shopping_cart(self, request):
+        ingredients = RecipeIngredient.objects.filter(
+            recipe__shopping_carts__user=request.user
+        ).values(
+            'ingredient__name', 'ingredient__measurement_unit'
+        ).annotate(total_sum=Sum('amount'))
+        wishlist = '\n'.join([
+            f'{ingredient["ingredient__name"]}: '
+            f'{ingredient["total_sum"]} '
+            f'{ingredient["ingredient__measurement_unit"]}.'
+            for ingredient in ingredients
+        ])
+        response = HttpResponse(wishlist, content_type='text/plain')
+        response['Content-Disposition'] = 'attachment; filename=wishlist.txt'
+        return response
