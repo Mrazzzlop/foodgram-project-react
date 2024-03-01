@@ -1,13 +1,13 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-from users.models import CustomUser
+from users.models import User
 from foodgram import constants
 from colorfield.fields import ColorField
 
 
 class Ingredient(models.Model):
-    """Представляет модель ингредиентов, используемую в рецептах"""
+    """Представляет модель ингредиентов, используемую в рецептах."""
     name = models.CharField(
         max_length=constants.INGREGIENT_NAME_MAX_LENGTH,
         verbose_name='Наименование'
@@ -22,22 +22,22 @@ class Ingredient(models.Model):
         ordering = ('name',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=['name', 'measurement_unit'],
                 name='unique_ingredient_fields',
                 violation_error_message=(
                     {'name, measurement_unit': 'Поля не уникальны'}
                 )
-            )
-        ]
+            ),
+        )
 
     def __str__(self):
         return self.name
 
 
 class Tag(models.Model):
-    """Представляет модель тегов, используемую для категоризации рецептов"""
+    """Представляет модель тегов, используемую для категоризации рецептов."""
     name = models.CharField(
         max_length=constants.TAG_NAME_LENGTH,
         unique=True,
@@ -57,7 +57,7 @@ class Tag(models.Model):
         verbose_name_plural = 'Тэги'
 
     def __str__(self):
-        return self.name
+        return self.name[:20]
 
 
 class Recipe(models.Model):
@@ -72,7 +72,7 @@ class Recipe(models.Model):
         verbose_name='Тэги'
     )
     author = models.ForeignKey(
-        CustomUser,
+        User,
         on_delete=models.CASCADE,
         related_name='recipes',
         verbose_name='Автор рецепта'
@@ -90,7 +90,7 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления',
-        validators=[
+        validators=(
             MinValueValidator(
                 constants.COOKING_TIME_MIN_VALUE,
                 message=f'Мининимально {constants.COOKING_TIME_MIN_VALUE}'
@@ -98,8 +98,8 @@ class Recipe(models.Model):
             MaxValueValidator(
                 constants.COOKING_TIME_MAX_VALUE,
                 message=f'Максимально {constants.COOKING_TIME_MAX_VALUE}'
-            )
-        ],
+            ),
+        ),
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
@@ -114,13 +114,13 @@ class Recipe(models.Model):
 
     def __str__(self):
         """Возвращает название рецепта."""
-        return self.name
+        return self.name[:20]
 
 
 class RecipeIngredient(models.Model):
     """
     Представляет модель M2M для ингредиентов в рецепте в
-    определенном количестве
+    определенном количестве.
     """
     recipe = models.ForeignKey(
         Recipe,
@@ -135,7 +135,7 @@ class RecipeIngredient(models.Model):
         verbose_name='Ингредиент'
     )
     amount = models.PositiveSmallIntegerField(
-        validators=[
+        validators=(
             MinValueValidator(
                 constants.AMOUNT_MIN_VALUE,
                 message=(
@@ -147,8 +147,8 @@ class RecipeIngredient(models.Model):
                 message=(
                     {'amount': f'Максимально {constants.AMOUNT_MAХ_VALUE}'}
                 )
-            )
-        ],
+            ),
+        ),
         verbose_name='Количество'
     )
 
@@ -158,15 +158,15 @@ class RecipeIngredient(models.Model):
         verbose_name_plural = 'Ингредиенты рецепта'
 
     def __str__(self):
-        return f'{self.ingredient}, кол-во: {self.amount}'
+        return f'{self.ingredient.name[:20]}, кол-во: {self.amount}'
 
 
-class CommonUserRecipeModel(models.Model):
+class UserRecipeModel(models.Model):
     """
     Представляет абстрактную модель M2M для моделей CustomUser.
     """
     user = models.ForeignKey(
-        CustomUser,
+        User,
         on_delete=models.CASCADE,
         verbose_name='Пользователь'
     )
@@ -181,18 +181,21 @@ class CommonUserRecipeModel(models.Model):
         """Класс Meta для модели CommonUserRecipe."""
         abstract = True
         ordering = ['name']
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=['user', 'recipe'],
                 name='unique_user_recipe',
                 violation_error_message=(
-                    {'user, recipe': 'Поля дожный быть уникальны'}
+                    {'user, recipe': 'Поля должны быть уникальны'}
                 )
-            )
-        ]
+            ),
+        )
+
+    def __str__(self):
+        return f'{self.user} - {self.recipe}'
 
 
-class FavoriteRecipe(CommonUserRecipeModel):
+class FavoriteRecipe(UserRecipeModel):
     """
     Унаследован от CommonUserRecipeModel.
     """
@@ -202,11 +205,18 @@ class FavoriteRecipe(CommonUserRecipeModel):
         verbose_name_plural = 'Избранные рецепты'
         default_related_name = 'favorite_recipes'
 
-    def __str__(self):
-        return f'Избранные рецепты {self.user}'
+        constraints = (
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name=f'unique_{UserRecipeModel.__name__.lower()}_recipe',
+                violation_error_message=(
+                    {'user, recipe': 'Поля должны быть уникальны'}
+                )
+            ),
+        )
 
 
-class ShoppingCart(CommonUserRecipeModel):
+class ShoppingCart(UserRecipeModel):
     """
     Унаследован от CommonUserRecipeModel.
     """
@@ -217,4 +227,4 @@ class ShoppingCart(CommonUserRecipeModel):
         default_related_name = 'shopping_carts'
 
     def __str__(self):
-        return f'Список покупок {self.user}'
+        return f'Список покупок {self.user[:20]}'

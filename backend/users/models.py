@@ -6,10 +6,10 @@ from django.db.models import Q, F
 from foodgram import constants
 
 
-class CustomUser(AbstractUser):
+class User(AbstractUser):
     """Модель Пользователя"""
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    REQUIRED_FIELDS = ('username', 'first_name', 'last_name',)
 
     first_name = models.CharField(
         max_length=constants.FIRST_NAME_MAX_LENGTH,
@@ -26,26 +26,21 @@ class CustomUser(AbstractUser):
         unique=True,
         verbose_name='Логин',
         help_text='Введите логин пользователя',
-        validators=[
-            UnicodeUsernameValidator()
-        ],
+        validators=(
+            UnicodeUsernameValidator(),
+        ),
     )
     email = models.EmailField(
         unique=True,
         verbose_name='E-mail',
         help_text='Введите email пользователя'
     )
-    password = models.CharField(
-        max_length=constants.PASSWORD_MAX_LENGTH,
-        verbose_name='Пароль',
-        help_text='Введите пароль пользователя',
-    )
 
     class Meta:
         """Класс Meta модели User."""
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-        ordering = ['username']
+        ordering = ('username',)
 
     def __str__(self):
         return self.username
@@ -54,13 +49,13 @@ class CustomUser(AbstractUser):
 class Subscription(models.Model):
     """Модель Подписок """
     user = models.ForeignKey(
-        CustomUser,
+        User,
         on_delete=models.CASCADE,
         related_name='follower',
         verbose_name='Кто подписан на автора'
     )
     following = models.ForeignKey(
-        CustomUser,
+        User,
         on_delete=models.CASCADE,
         related_name='following',
         verbose_name='На кого подписан автор',
@@ -71,7 +66,7 @@ class Subscription(models.Model):
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         ordering = ['user']
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=['user', 'following'],
                 name='unique_subscription_fields',
@@ -85,8 +80,8 @@ class Subscription(models.Model):
                 violation_error_message=(
                     {'subscription': 'Нельзя подписаться на себя.'}
                 )
-            )
-        ]
+            ),
+        )
 
     def __str__(self):
         return f'{self.user} подписан на {self.following}'

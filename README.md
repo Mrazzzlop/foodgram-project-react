@@ -43,13 +43,15 @@ pip install -r requirements.txt
 ```
 - Создать файл .env в папке проекта:
 ```.env
-DB_ENGINE=django.db.backends.postgresql # указываем, что работаем с postgresql
-DB_NAME=postgres # имя базы данных
-POSTGRES_USER=postgres # логин для подключения к базе данных
-POSTGRES_PASSWORD=postgres # пароль для подключения к БД (установите свой)
-DB_HOST=db # название сервиса (контейнера)
-DB_PORT=5432 # порт для подключения к БД
+SECRET_KEY=secretkey
 DEBUG=False
+DJANGO_SERVER_TYPE=prod
+ALLOWED_HOSTS=127.0.0.1,localhost,backend
+POSTGRES_USER=postgre 
+POSTGRES_PASSWORD=postgre
+POSTGRES_DB=django
+DB_HOST=db
+DB_PORT=5432
 ```
 
 ### Выполните миграции:

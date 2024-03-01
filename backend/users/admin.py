@@ -4,12 +4,12 @@ from django.contrib.auth.models import Group
 from rest_framework.authtoken.models import TokenProxy
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import CustomUser, Subscription
+from .models import User, Subscription
 
 
-class CustomUserCreationForm(UserCreationForm):
+class UserCreationForm(UserCreationForm):
     class Meta:
-        model = CustomUser
+        model = User
         fields = '__all__'
 
 
@@ -23,10 +23,10 @@ class SubscriptionInline(admin.StackedInline):
     fk_name = 'following'
 
 
-@admin.register(CustomUser)
-class CustomUserAdmin(UserAdmin):
+@admin.register(User)
+class UserAdmin(UserAdmin):
     """Регистрация юзера."""
-    model = CustomUser
+    model = User
     add_form = UserCreationForm
 
     list_display = (
@@ -62,7 +62,7 @@ class CustomUserAdmin(UserAdmin):
             )
         }),
     )
-    inlines = [SubscriptionOnInline, SubscriptionInline]
+    inlines = (SubscriptionOnInline, SubscriptionInline,)
 
 
 @admin.register(Subscription)
