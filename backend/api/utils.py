@@ -3,7 +3,9 @@ from django.http import FileResponse
 
 def generate_wishlist_file(ingredients):
     wishlist = '\n'.join([
-        f'{ingredient["ingredient__name"]}: {ingredient["total_sum"]} {ingredient["ingredient__measurement_unit"]}.'
+        f'{ingredient["ingredient__name"]}:'
+        f'{ingredient["total_sum"]}'
+        f'{ingredient["ingredient__measurement_unit"]}.'
         for ingredient in ingredients
     ])
 

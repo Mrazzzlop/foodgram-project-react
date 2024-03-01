@@ -1,5 +1,3 @@
-import contextlib
-
 from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
 
@@ -83,8 +81,11 @@ class RecipeIngredientAmountSerializer(serializers.ModelSerializer):
 
 class AddIngredientSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
-    amount = serializers.IntegerField(min_value=0, max_value=1000,
-                                     error_messages={'invalid': "Amount must be between 0 and 100"})
+    amount = serializers.IntegerField(
+        min_value=0, max_value=1000,
+        error_messages={'invalid': "Amount must be between 0 and 100"}
+    )
+
     class Meta:
         model = RecipeIngredient
         fields = (
@@ -192,7 +193,7 @@ class RecipeAddSerializer(serializers.ModelSerializer):
 
         return attrs
 
-    def create(self,  validated_data):
+    def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         request = self.context.get('request')

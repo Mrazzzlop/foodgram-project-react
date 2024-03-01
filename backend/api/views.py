@@ -1,13 +1,10 @@
 from django.db.models import Sum
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (
     IsAuthenticated,
     IsAuthenticatedOrReadOnly,
-    AllowAny
 )
 from rest_framework.response import Response
 
@@ -17,7 +14,7 @@ from recipes.models import (
     Recipe, RecipeIngredient,
     ShoppingCart, Tag
 )
-from  .utils import generate_wishlist_file
+from .utils import generate_wishlist_file
 from .filters import IngredientSearchFilter, RecipeFilterBackend
 from .paginators import PageLimitPagination
 from .permissions import AuthorOrReadOnly
