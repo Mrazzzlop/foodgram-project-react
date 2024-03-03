@@ -2,6 +2,7 @@ from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
 
 from users.models import User, Subscription
+from foodgram import constants
 from recipes.models import (
     FavoriteRecipe,
     Ingredient,
@@ -10,9 +11,6 @@ from recipes.models import (
     ShoppingCart,
     Tag
 )
-
-error_messege = ('Не удается войти в'
-                 'систему с предоставленными учетными данными.')
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -82,8 +80,11 @@ class RecipeIngredientAmountSerializer(serializers.ModelSerializer):
 class AddIngredientSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
     amount = serializers.IntegerField(
-        min_value=0, max_value=1000,
-        error_messages={'invalid': "Amount must be between 0 and 100"}
+        min_value=constants.INGREDIENT_MIN, max_value=constants.INGREDIENT_MAX,
+        error_messages={
+            'invalid':
+                f'Кол-во должно быть в диапазоне от {constants.INGREDIENT_MIN} до {constants.INGREDIENT_MAX}'
+        }
     )
 
     class Meta:
@@ -264,11 +265,13 @@ class SubscriptionListSerializer(UserSerializer):
         recipes = obj.recipes.all()
         recipes_limit = request.query_params.get('recipes_limit')
 
-        if recipes_limit is not None:
+        if recipes_limit:
             try:
-                recipes = recipes[:int(recipes_limit)]
+                recipes_limit = int(recipes_limit)
             except (ValueError, TypeError):
-                recipes = recipes[:3]
+                recipes_limit = None
+            if recipes_limit is not None:
+                recipes = recipes[:recipes_limit]
 
         return RecipeMinifiedSerializer(
             recipes,
@@ -320,20 +323,13 @@ class BaseRecipeSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         user = attrs['user']
         recipe = attrs['recipe']
-        model_class = self.Meta.model
+        existing_check = self.Meta.model.objects.filter(user=user, recipe=recipe).exists()
 
-        if model_class == ShoppingCart:
-            if user.shopping_carts.filter(recipe=recipe).exists():
-                raise serializers.ValidationError(
-                    {'recipe': 'Уже в корзине.'}
-                )
-            return attrs
-        else:
-            if user.favorite_recipes.filter(recipe=recipe).exists():
-                raise serializers.ValidationError(
-                    {'recipe': 'Уже добавлен.'}
-                )
-            return attrs
+        if existing_check:
+            raise serializers.ValidationError(
+                {'recipe': 'Уже существует.'}
+            )
+        return attrs
 
     def to_representation(self, instance):
         return RecipeMinifiedSerializer(
@@ -343,18 +339,10 @@ class BaseRecipeSerializer(serializers.ModelSerializer):
 
 
 class ShoppingCartSerializer(BaseRecipeSerializer):
-    class Meta:
+    class Meta(BaseRecipeSerializer.Meta):
         model = ShoppingCart
-        fields = (
-            'user',
-            'recipe'
-        )
 
 
 class FavoriteRecipeSerializer(BaseRecipeSerializer):
-    class Meta:
+    class Meta(BaseRecipeSerializer.Meta):
         model = FavoriteRecipe
-        fields = (
-            'user',
-            'recipe'
-        )

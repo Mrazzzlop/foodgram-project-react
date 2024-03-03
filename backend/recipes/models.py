@@ -24,7 +24,7 @@ class Ingredient(models.Model):
         verbose_name_plural = 'Ингредиенты'
         constraints = (
             models.UniqueConstraint(
-                fields=['name', 'measurement_unit'],
+                fields= ('name', 'measurement_unit',),
                 name='unique_ingredient_fields',
                 violation_error_message=(
                     {'name, measurement_unit': 'Поля не уникальны'}
@@ -57,11 +57,12 @@ class Tag(models.Model):
         verbose_name_plural = 'Тэги'
 
     def __str__(self):
-        return self.name[:20]
+        return self.name[:constants.NAME_LENGTH]
 
 
 class Recipe(models.Model):
-    """Модель рецепта"""
+    """Модель рецепта."""
+
     name = models.CharField(
         max_length=constants.RECIPE_NAME_LENGTH,
         verbose_name='Наименование'
@@ -108,13 +109,14 @@ class Recipe(models.Model):
 
     class Meta:
         """Метакласс модели рецепта."""
-        ordering = ['-pub_date']
+
+        ordering = ('-pub_date',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
     def __str__(self):
         """Возвращает название рецепта."""
-        return self.name[:20]
+        return self.name[:constants.NAME_LENGTH]
 
 
 class RecipeIngredient(models.Model):
@@ -122,6 +124,7 @@ class RecipeIngredient(models.Model):
     Представляет модель M2M для ингредиентов в рецепте в
     определенном количестве.
     """
+
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -154,17 +157,19 @@ class RecipeIngredient(models.Model):
 
     class Meta:
         """Класс Meta модели RecipeIngredient."""
+
         verbose_name = 'Ингредиент рецепта'
         verbose_name_plural = 'Ингредиенты рецепта'
 
     def __str__(self):
-        return f'{self.ingredient.name[:20]}, кол-во: {self.amount}'
+        return f'{self.ingredient.name[:constants.NAME_LENGTH]}, кол-во: {self.amount}'
 
 
 class UserRecipeModel(models.Model):
     """
     Представляет абстрактную модель M2M для моделей CustomUser.
     """
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -179,52 +184,54 @@ class UserRecipeModel(models.Model):
 
     class Meta:
         """Класс Meta для модели CommonUserRecipe."""
-        abstract = True
-        ordering = ['name']
-        constraints = (
-            models.UniqueConstraint(
-                fields=['user', 'recipe'],
-                name='unique_user_recipe',
-                violation_error_message=(
-                    {'user, recipe': 'Поля должны быть уникальны'}
-                )
-            ),
-        )
 
-    def __str__(self):
-        return f'{self.user} - {self.recipe}'
+        abstract = True
 
 
 class FavoriteRecipe(UserRecipeModel):
     """
     Унаследован от CommonUserRecipeModel.
     """
-    class Meta:
+
+    class Meta(UserRecipeModel.Meta):
         """Класс Meta для модели FavoriteRecipe."""
+
         verbose_name = 'Избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
         default_related_name = 'favorite_recipes'
-
         constraints = (
             models.UniqueConstraint(
-                fields=['user', 'recipe'],
-                name=f'unique_{UserRecipeModel.__name__.lower()}_recipe',
+                fields=('user', 'recipe',),
+                name='unique_favorite_recipes',
                 violation_error_message=(
                     {'user, recipe': 'Поля должны быть уникальны'}
                 )
             ),
         )
 
+    def __str__(self):
+        return f'Избранные рецепты {self.user[:constants.NAME_LENGTH]}'
+
 
 class ShoppingCart(UserRecipeModel):
     """
     Унаследован от CommonUserRecipeModel.
     """
-    class Meta:
+
+    class Meta(UserRecipeModel.Meta):
         """Класс Meta для модели ShoppingCard."""
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
         default_related_name = 'shopping_carts'
+        constraints = (
+            models.UniqueConstraint(
+                fields=('user', 'recipe',),
+                name='unique_shopping_cart_recipe',
+                violation_error_message=(
+                    {'user, recipe': 'Поля должны быть уникальны'}
+                )
+            ),
+        )
 
     def __str__(self):
-        return f'Список покупок {self.user[:20]}'
+        return f'Список покупок {self.user[:constants.NAME_LENGTH]}'

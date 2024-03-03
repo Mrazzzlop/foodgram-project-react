@@ -8,6 +8,7 @@ from foodgram import constants
 
 class User(AbstractUser):
     """Модель Пользователя"""
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('username', 'first_name', 'last_name',)
 
@@ -38,6 +39,7 @@ class User(AbstractUser):
 
     class Meta:
         """Класс Meta модели User."""
+
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
         ordering = ('username',)
@@ -48,6 +50,7 @@ class User(AbstractUser):
 
 class Subscription(models.Model):
     """Модель Подписок """
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -63,9 +66,10 @@ class Subscription(models.Model):
 
     class Meta:
         """Класс Meta модели Subscription."""
+
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
-        ordering = ['user']
+        ordering = ('user',)
         constraints = (
             models.UniqueConstraint(
                 fields=['user', 'following'],

@@ -14,7 +14,7 @@ from recipes.models import (
     Recipe, RecipeIngredient,
     ShoppingCart, Tag
 )
-from .utils import generate_wishlist_file
+from .services import generate_wishlist_file
 from .filters import IngredientSearchFilter, RecipeFilterBackend
 from .paginators import PageLimitPagination
 from .permissions import AuthorOrReadOnly
@@ -29,6 +29,7 @@ from .serializers import (
 
 class UserViewSet(UserViewSet):
     """Вьюсет юзера."""
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
     pagination_class = PageLimitPagination
@@ -90,6 +91,7 @@ class UserViewSet(UserViewSet):
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет тега."""
+
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -98,6 +100,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     """Вьюсет ингридиента."""
+
     queryset = Ingredient.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = IngredientSerializer
@@ -108,17 +111,12 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет рецепта."""
-    queryset = Recipe.objects.all()
+
+    queryset = Recipe.objects.all().select_related('author').prefetch_related('tags', 'ingredients')
     filterset_class = RecipeFilterBackend
     serializer_class = RecipeListSerializer
     pagination_class = PageLimitPagination
     permission_classes = (AuthorOrReadOnly,)
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        queryset = queryset.select_related('author')
-        queryset = queryset.prefetch_related('tags', 'ingredients')
-        return queryset
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrive'):
@@ -190,6 +188,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe__shopping_carts__user=request.user
         ).values(
             'ingredient__name', 'ingredient__measurement_unit'
-        ).annotate(total_sum=Sum('amount'))
+        ).annotate(total_sum=Sum('amount')).order_by('total_sum')
 
         return generate_wishlist_file(ingredients)
