@@ -112,7 +112,9 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет рецепта."""
 
-    queryset = Recipe.objects.all().select_related('author').prefetch_related('tags', 'ingredients')
+    queryset = Recipe.objects.all().select_related('author').prefetch_related(
+        'tags', 'ingredients'
+    )
     filterset_class = RecipeFilterBackend
     serializer_class = RecipeListSerializer
     pagination_class = PageLimitPagination

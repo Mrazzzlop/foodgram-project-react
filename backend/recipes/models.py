@@ -24,7 +24,7 @@ class Ingredient(models.Model):
         verbose_name_plural = 'Ингредиенты'
         constraints = (
             models.UniqueConstraint(
-                fields= ('name', 'measurement_unit',),
+                fields=('name', 'measurement_unit',),
                 name='unique_ingredient_fields',
                 violation_error_message=(
                     {'name, measurement_unit': 'Поля не уникальны'}
@@ -162,7 +162,8 @@ class RecipeIngredient(models.Model):
         verbose_name_plural = 'Ингредиенты рецепта'
 
     def __str__(self):
-        return f'{self.ingredient.name[:constants.NAME_LENGTH]}, кол-во: {self.amount}'
+        return (f'{self.ingredient.name[:constants.NAME_LENGTH]},'
+                f'кол-во: {self.amount}')
 
 
 class UserRecipeModel(models.Model):

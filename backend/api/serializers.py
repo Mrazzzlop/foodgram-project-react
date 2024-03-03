@@ -83,7 +83,8 @@ class AddIngredientSerializer(serializers.ModelSerializer):
         min_value=constants.INGREDIENT_MIN, max_value=constants.INGREDIENT_MAX,
         error_messages={
             'invalid':
-                f'Кол-во должно быть в диапазоне от {constants.INGREDIENT_MIN} до {constants.INGREDIENT_MAX}'
+                f'Кол-во должно быть в диапазоне от {constants.INGREDIENT_MIN}'
+                f'до {constants.INGREDIENT_MAX}'
         }
     )
 
@@ -323,7 +324,10 @@ class BaseRecipeSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         user = attrs['user']
         recipe = attrs['recipe']
-        existing_check = self.Meta.model.objects.filter(user=user, recipe=recipe).exists()
+        existing_check = self.Meta.model.objects.filter(
+            user=user,
+            recipe=recipe
+        ).exists()
 
         if existing_check:
             raise serializers.ValidationError(
