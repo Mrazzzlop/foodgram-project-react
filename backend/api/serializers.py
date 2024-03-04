@@ -270,7 +270,7 @@ class SubscriptionListSerializer(UserSerializer):
                 recipes_limit = int(recipes_limit)
             except (ValueError, TypeError):
                 recipes_limit = None
-                recipes = recipes[:recipes_limit]
+            recipes = recipes[:recipes_limit]
 
         return RecipeMinifiedSerializer(
             recipes,
