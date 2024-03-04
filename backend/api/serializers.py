@@ -258,8 +258,9 @@ class SubscriptionListSerializer(UserSerializer):
         )
 
     def get_recipes(self, obj):
+        request = self.context('request')
         recipes = obj.recipes.all()
-        recipes_limit = self.context.get('recipes_limit')
+        recipes_limit = request.query_params.get('recipes_limit')
 
         if recipes_limit:
             try:
