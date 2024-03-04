@@ -82,7 +82,8 @@ class AddIngredientSerializer(serializers.ModelSerializer):
     amount = serializers.IntegerField(
         min_value=constants.INGREDIENT_MIN, max_value=constants.INGREDIENT_MAX,
         error_messages={
-            'min_value': f'Кол-во должно быть в диапазоне от {constants.INGREDIENT_MIN}',
+            'min_value': f'Кол-во должно быть в диапазоне от'
+                         f'{constants.INGREDIENT_MIN}',
             'max_value': f'до {constants.INGREDIENT_MAX}'
         }
     )
