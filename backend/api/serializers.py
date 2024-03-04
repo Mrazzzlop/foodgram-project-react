@@ -33,7 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
         return bool(
             request
             and request.user.is_authenticated
-            and request.user.follower.filter(author=obj).exists()
+            and request.user.follower.filter(user=obj).exists()
         )
 
 
@@ -261,7 +261,7 @@ class SubscriptionListSerializer(UserSerializer):
         )
 
     def get_recipes(self, obj):
-        request = self.context.get('request', None)
+        request = self.context('request')
         recipes = obj.recipes.all()
         recipes_limit = request.query_params.get('recipes_limit')
 
