@@ -29,13 +29,10 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        request = self.context.get('request')
-        return (request
-                and request.user.is_authenticated
-                and obj.subscriptions.filter(
-                    user=request.user,
-                    subscription=obj
-                ).exists())
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return Subscription.objects.filter(user=user, following=obj).exists()
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -83,9 +80,8 @@ class AddIngredientSerializer(serializers.ModelSerializer):
     amount = serializers.IntegerField(
         min_value=constants.INGREDIENT_MIN, max_value=constants.INGREDIENT_MAX,
         error_messages={
-            'min_value': f'Кол-во должно быть в диапазоне от'
-                         f'{constants.INGREDIENT_MIN}',
-            'max_value': f'до {constants.INGREDIENT_MAX}'
+            'min_value': f'Минимально значение: {constants.INGREDIENT_MIN}',
+            'max_value': f'Максимальное значиние: {constants.INGREDIENT_MAX}'
         }
     )
 
@@ -262,9 +258,8 @@ class SubscriptionListSerializer(UserSerializer):
         )
 
     def get_recipes(self, obj):
-        request = self.context('request')
         recipes = obj.recipes.all()
-        recipes_limit = request.query_params.get('recipes_limit')
+        recipes_limit = self.context.get('recipes_limit')
 
         if recipes_limit:
             try:
