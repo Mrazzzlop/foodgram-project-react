@@ -29,12 +29,10 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        request = self.context.get('request')
-        return bool(
-            request
-            and request.user.is_authenticated
-            and request.user.follower.filter(user=obj).exists()
-        )
+        """Проверка подписки"""
+        user = self.context.get("request").user
+        return not user.is_anonymous and Subscription.objects.filter(
+            user=user, author=obj).exists()
 
 
 class TagSerializer(serializers.ModelSerializer):
