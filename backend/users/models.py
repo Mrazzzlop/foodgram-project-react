@@ -72,7 +72,7 @@ class Subscription(models.Model):
         ordering = ('user',)
         constraints = (
             models.UniqueConstraint(
-                fields=['user', 'following'],
+                fields=('user', 'following',),
                 name='unique_subscription_fields',
                 violation_error_message=(
                     {'subscription': 'Уже подписан.'}
