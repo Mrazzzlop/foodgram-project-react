@@ -7,7 +7,7 @@ from foodgram import constants
 
 
 class User(AbstractUser):
-    """Модель Пользователя"""
+    """Модель Пользователя."""
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('username', 'first_name', 'last_name',)
@@ -49,7 +49,7 @@ class User(AbstractUser):
 
 
 class Subscription(models.Model):
-    """Модель Подписок """
+    """Модель Подписок."""
 
     user = models.ForeignKey(
         User,

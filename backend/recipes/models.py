@@ -8,6 +8,7 @@ from colorfield.fields import ColorField
 
 class Ingredient(models.Model):
     """Представляет модель ингредиентов, используемую в рецептах."""
+
     name = models.CharField(
         max_length=constants.INGREGIENT_NAME_MAX_LENGTH,
         verbose_name='Наименование'
@@ -19,6 +20,7 @@ class Ingredient(models.Model):
 
     class Meta:
         """Класс Meta для модели Ingredient."""
+
         ordering = ('name',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
@@ -38,6 +40,7 @@ class Ingredient(models.Model):
 
 class Tag(models.Model):
     """Представляет модель тегов, используемую для категоризации рецептов."""
+
     name = models.CharField(
         max_length=constants.TAG_NAME_LENGTH,
         unique=True,
@@ -53,6 +56,7 @@ class Tag(models.Model):
 
     class Meta:
         """Класс Meta для модели Tag."""
+
         verbose_name = 'Тэг'
         verbose_name_plural = 'Тэги'
 

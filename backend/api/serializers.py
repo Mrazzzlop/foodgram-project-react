@@ -82,7 +82,7 @@ class AddIngredientSerializer(serializers.ModelSerializer):
     amount = serializers.IntegerField(
         min_value=constants.INGREDIENT_MIN, max_value=constants.INGREDIENT_MAX,
         error_messages={
-            'invalid':
+            'min_value':
                 f'Кол-во должно быть в диапазоне от {constants.INGREDIENT_MIN}'
                 f'до {constants.INGREDIENT_MAX}'
         }
@@ -227,7 +227,6 @@ class RecipeAddSerializer(serializers.ModelSerializer):
             )
             for ingredient in ingredients
         )
-        return recipe
 
     def to_representation(self, instance):
         return RecipeListSerializer(instance, context=self.context).data
@@ -262,7 +261,7 @@ class SubscriptionListSerializer(UserSerializer):
         )
 
     def get_recipes(self, obj):
-        request = self.context.get('request')
+        request = self.context.get('request') or request.query_params.get('request')
         recipes = obj.recipes.all()
         recipes_limit = request.query_params.get('recipes_limit')
 
@@ -271,7 +270,6 @@ class SubscriptionListSerializer(UserSerializer):
                 recipes_limit = int(recipes_limit)
             except (ValueError, TypeError):
                 recipes_limit = None
-            if recipes_limit is not None:
                 recipes = recipes[:recipes_limit]
 
         return RecipeMinifiedSerializer(
@@ -324,12 +322,10 @@ class BaseRecipeSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         user = attrs['user']
         recipe = attrs['recipe']
-        existing_check = self.Meta.model.objects.filter(
+        if self.Meta.model.objects.filter(
             user=user,
             recipe=recipe
-        ).exists()
-
-        if existing_check:
+        ).exists():
             raise serializers.ValidationError(
                 {'recipe': 'Уже существует.'}
             )
