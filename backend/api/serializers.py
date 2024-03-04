@@ -33,7 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
         return bool(
             request
             and request.user.is_authenticated
-            and request.user.follower.filter(user=obj.id).exists()
+            and request.user.follower.filter(user=obj).exists()
         )
 
 
