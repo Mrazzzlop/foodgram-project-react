@@ -1,0 +1,51 @@
+version: '3.3'
+
+volumes:
+  pg_data_production:
+  static:
+  front_build:
+  media:
+  redoc:
+services:
+  db:
+    image: postgres:13.10
+    env_file:
+      - ./.env
+    volumes:
+      - pg_data_production:/var/lib/postgresql/data
+
+  backend:
+    image: mrazzzlop/foodgram_backend
+    env_file:
+      - ./.env
+    volumes:
+      - static:/static_backend
+      - media:/media_files
+      - redoc:/app/api/docs/
+    depends_on:
+      - db
+    restart: always
+
+  frontend:
+    image: mrazzzlop/foodgram_frontend
+    env_file:
+      - ./.env
+    command: cp -r /app/build/. /app/result_build/
+    volumes:
+      - front_build:/app/result_build/
+
+  nginx:
+    image: mrazzzlop/foodgram_nginx
+    env_file:
+      - ./.env
+    volumes:
+      - media:/var/html/media/
+      - static:/var/html/static/
+      - redoc:/usr/share/nginx/html/api/docs/
+      - front_build:/usr/share/nginx/html/frontend/
+    ports:
+      - "8000:80"
+    restart: always
+    depends_on:
+      - backend
+      - frontend
