@@ -33,7 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
         return bool(
             request
             and request.user.is_authenticated
-            and request.user.follower.filter(author=obj).exists()
+            and request.user.follower.filter(user=obj).exists()
         )
 
 
@@ -82,8 +82,7 @@ class AddIngredientSerializer(serializers.ModelSerializer):
     amount = serializers.IntegerField(
         min_value=constants.INGREDIENT_MIN, max_value=constants.INGREDIENT_MAX,
         error_messages={
-            'min_value': f'Кол-во должно быть в диапазоне от'
-                         f'{constants.INGREDIENT_MIN}',
+            'min_value': f'Кол-во должно быть в диапазоне от {constants.INGREDIENT_MIN}',
             'max_value': f'до {constants.INGREDIENT_MAX}'
         }
     )
@@ -261,7 +260,7 @@ class SubscriptionListSerializer(UserSerializer):
         )
 
     def get_recipes(self, obj):
-        request = self.context('request')
+        request = self.context.get('request', None)
         recipes = obj.recipes.all()
         recipes_limit = request.query_params.get('recipes_limit')
 
